@@ -1,8 +1,9 @@
 find_package (KDecoration2 REQUIRED)
 
-find_package (Qt5 REQUIRED COMPONENTS
+find_package (Qt6 REQUIRED COMPONENTS
     Core
     Gui
+    Widgets
 )
 
 find_package (KF5 REQUIRED COMPONENTS
@@ -27,8 +28,9 @@ add_library (materialdecoration MODULE
 
 target_link_libraries (materialdecoration
     PUBLIC
-        Qt5::Core
-        Qt5::Gui
+        Qt::Core
+        Qt::Gui
+        Qt::Widgets
         KF5::ConfigCore
         KF5::ConfigGui
         KF5::CoreAddons

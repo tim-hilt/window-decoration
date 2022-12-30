@@ -28,8 +28,11 @@
 #include <KDecoration2/DecorationShadow>
 
 // Qt
+#include <QGuiApplication>
 #include <QPainter>
 #include <QSharedPointer>
+#include <qcursor.h>
+#include <qrgb.h>
 
 namespace Material {
 
@@ -67,9 +70,6 @@ const CompositeShadowParams s_shadowParams =
 static int s_decoCount = 0;
 static QColor s_shadowColor(33, 33, 33);
 static QSharedPointer<KDecoration2::DecorationShadow> s_cachedShadow;
-
-static qreal s_titleBarOpacityActive = 0.9;
-static qreal s_titleBarOpacityInactive = 1.0;
 
 Decoration::Decoration(QObject *parent, const QVariantList &args)
     : KDecoration2::Decoration(parent, args) {
@@ -279,16 +279,10 @@ void Decoration::paintFrameBackground(QPainter *painter,
 }
 
 QColor Decoration::titleBarBackgroundColor() const {
-  const auto *decoratedClient = client().toStrongRef().data();
-  const auto group = decoratedClient->isActive()
-                         ? KDecoration2::ColorGroup::Active
-                         : KDecoration2::ColorGroup::Inactive;
-  const qreal opacity = decoratedClient->isActive() ? s_titleBarOpacityActive
-                                                    : s_titleBarOpacityInactive;
-  QColor color =
-      decoratedClient->color(group, KDecoration2::ColorRole::TitleBar);
-  color.setAlphaF(opacity);
-  return color;
+  QScreen *screen = QGuiApplication::primaryScreen();
+  auto a = screen->grabWindow(0);
+  QRgb black{0x00000000};
+  return QColor(black);
 }
 
 QColor Decoration::titleBarForegroundColor() const {
@@ -351,7 +345,7 @@ void Decoration::paintCaption(QPainter *painter,
   painter->save();
   painter->setFont(settings()->font());
   painter->setPen(titleBarForegroundColor());
-  painter->drawText(captionRect, alignment, caption);
+  // painter->drawText(captionRect, alignment, caption);
   painter->restore();
 }
 
