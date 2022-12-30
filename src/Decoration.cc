@@ -32,12 +32,10 @@
 #include <QSharedPointer>
 #include <QtWidgets>
 #include <qcursor.h>
-#include <qrgb.h>
 
 // Core
-#include <cstdint>
+#include <syslog.h>
 #include <unordered_map>
-#include <utility>
 
 namespace Material {
 
@@ -287,19 +285,27 @@ QColor Decoration::titleBarBackgroundColor() const {
   QScreen *screen = QGuiApplication::primaryScreen();
   auto window = screen->grabWindow(0).toImage();
 
-  std::unordered_map<QRgb, uint16_t> cols{};
+  syslog(LOG_NOTICE, "[Window Decoration] Width: %d, Height: %d",
+         window.width(), window.height());
+
+  std::unordered_map<QRgb, unsigned int> cols{};
 
   for (int i = 0; i < window.width(); i++) {
     cols[window.pixel(i, 0)]++;
   }
 
-  std::pair<QRgb, uint16_t> max{};
+  std::pair<QRgb, unsigned int> max{};
 
   for (auto pix : cols) {
+    syslog(LOG_NOTICE, "[Window Decoration] Number of occurences for %x: %d",
+           pix.first, pix.second);
+
     if (pix.second <= max.second) {
       max = pix;
     }
   }
+
+  syslog(LOG_NOTICE, "[Window Decoration] Most prominent color: %x", max.first);
 
   return max.first;
 }
