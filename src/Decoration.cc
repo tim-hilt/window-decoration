@@ -28,11 +28,16 @@
 #include <KDecoration2/DecorationShadow>
 
 // Qt
-#include <QGuiApplication>
 #include <QPainter>
 #include <QSharedPointer>
+#include <QtWidgets>
 #include <qcursor.h>
 #include <qrgb.h>
+
+// Core
+#include <cstdint>
+#include <unordered_map>
+#include <utility>
 
 namespace Material {
 
@@ -280,9 +285,23 @@ void Decoration::paintFrameBackground(QPainter *painter,
 
 QColor Decoration::titleBarBackgroundColor() const {
   QScreen *screen = QGuiApplication::primaryScreen();
-  auto a = screen->grabWindow(0);
-  QRgb black{0x00000000};
-  return QColor(black);
+  auto window = screen->grabWindow(0).toImage();
+
+  std::unordered_map<QRgb, uint16_t> cols{};
+
+  for (int i = 0; i < window.width(); i++) {
+    cols[window.pixel(i, 0)]++;
+  }
+
+  std::pair<QRgb, uint16_t> max{};
+
+  for (auto pix : cols) {
+    if (pix.second <= max.second) {
+      max = pix;
+    }
+  }
+
+  return max.first;
 }
 
 QColor Decoration::titleBarForegroundColor() const {
